@@ -103,3 +103,67 @@ function register_films_taxonomies()
     }
 }
 add_action('init', 'register_films_taxonomies');
+
+/**
+ * Add custom text fields
+ *  Release Date and Ticket Price
+ */
+function add_custom_text_fields()
+{
+    $posts = ['films', 'detail_films'];
+    foreach ($posts as $post) {
+        add_meta_box(
+            'wporg_box_id', // Unique ID
+            'Detail Films', // Box title
+            'custom_fields_html', // Content callback, must be of type callable
+            $post // Post type
+        );
+    }
+}
+add_action('add_meta_boxes', 'add_custom_text_fields');
+
+/**
+ * Custom fields html
+ */
+function custom_fields_html($post)
+{
+    $value1 = get_post_meta($post->ID, 'price_meta_key', true);
+    $value = get_post_meta($post->ID, 'release_meta_key', true);
+    ?>
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <label for="ticket_price">Ticket Price: </label>
+        <input type="text" value="<?php echo $value1 ?>" name="ticket_price" id="ticket_price">
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <label for="release_date">Release Date: </label>
+        <input type="date"  value="<?php echo $value ?>" name="release_date" id="release_date">
+    </div>
+    <?php
+
+}
+
+/**
+ * Save custom text fields data
+ */
+function save_custom_texts($post_id)
+{
+    if (array_key_exists('ticket_price', $_POST)) {
+        //*dave ticket price
+        update_post_meta(
+            $post_id,
+            'price_meta_key',
+            $_POST['ticket_price']
+        );
+    }
+    if (array_key_exists('release_date', $_POST)) {
+        //*save relesase date
+        update_post_meta(
+            $post_id,
+            'release_meta_key',
+            $_POST['release_date']
+        );
+    }
+}
+add_action('save_post', 'save_custom_texts');
+
+
