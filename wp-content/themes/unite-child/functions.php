@@ -166,4 +166,104 @@ function save_custom_texts($post_id)
 }
 add_action('save_post', 'save_custom_texts');
 
+/**
+ * Get films
+ */
+function get_films()
+{
+    //films desc order
+    $args = array(
+        'post_type' => 'films',
+        'orderby' => 'id',
+        'order' => 'DESC'
+    );
 
+    // WP_Query arguments
+    $recent_posts = wp_get_recent_posts($args);
+
+    echo '<h4>List films</h4>';
+    //*print films
+    foreach ($recent_posts as $recent) {
+        $post_thumbnail_id = get_post_thumbnail_id($recent["ID"]);
+        $img = wp_get_attachment_image_url($post_thumbnail_id, 'full');
+        $price = get_post_meta($recent["ID"], 'price_meta_key', true);
+        $date = get_post_meta($recent["ID"], 'release_meta_key', true);
+
+        $genres = get_the_terms($recent["ID"], 'genre_film', true);
+        $countries = get_the_terms($recent["ID"], 'country_film', true);
+
+        $html = '<div class="panel col-lg-4 col-md-4 col-sm-12 col-lxs-12">';
+        $html .= '<div class="panel-body">';
+        $html .= '<a href="' . get_permalink($recent["ID"]) . '" title="Look ' . esc_attr($recent["post_title"]) . '" >';
+        $html .= '<div class="col-lg-12 col-md-12 col-sm-12 col-lxs-12">';
+        $html .= '<img src="' . $img . '">';
+        $html .= '</div>';
+        $html .= '<div class="col-lg-12 col-md-12 col-sm-12 col-lxs-12">';
+        $html .= '<h4>' . $recent["post_title"] . '</h4>';
+        $html .= '<p>' . $date . '</p>';
+        $html .= '<p>' . $price . '</p>';
+
+        $html .= '<p>';
+        foreach ($genres as $genre) {
+            $html .= $genre->name . ', ';
+        }
+        $html .= '</p>';
+
+        $html .= '<p>';
+        foreach ($countries as $country) {
+            $html .= $country->name . ', ';
+        }
+        $html .= '</p>';
+
+        $html .= '</div>';
+        $html .= '</a>';
+        $html .= '</div>';
+        $html .= '</div>';
+
+        echo $html;
+    }
+
+}
+
+add_action('the_films', 'get_films', 1);
+
+/**
+ * Last five films shortcode
+ */
+function last_films_shortcode()
+{
+    $args = array(
+        'post_type' => 'films',
+        'orderby' => 'id',
+        'order' => 'DESC',
+        'posts_per_page' => 5,
+    );
+    
+    // WP_Query arguments
+    $recent_posts = wp_get_recent_posts($args);
+
+    echo '<h4>Recent films</h4>';
+
+    foreach ($recent_posts as $recent) {
+        $post_thumbnail_id = get_post_thumbnail_id($recent["ID"]);
+        $img = wp_get_attachment_image_url($post_thumbnail_id, 'full');
+
+        $html = '<div class="panel col-lg-12 col-md-12 col-sm-12 col-lxs-12">';
+        $html .= '<div class="panel-body">';
+        $html .= '<a href="' . get_permalink($recent["ID"]) . '" title="Look ' . esc_attr($recent["post_title"]) . '" >';
+        $html .= '<div class="col-lg-4 col-md-4 col-sm-12 col-lxs-12">';
+        $html .= '<img src="' . $img . '">';
+        $html .= '</div>';
+        $html .= '<div class="col-lg-8 col-md-8 col-sm-12 col-lxs-12">';
+        $html .= '<h4>' . $recent["post_title"] . '</h4>';
+        $html .= '<p>' . wp_trim_words($recent["post_content"], 10) . '</p>';
+        $html .= '</div>';
+        $html .= '</a>';
+        $html .= '</div>';
+        $html .= '</div>';
+
+        echo $html;
+    }
+}
+
+add_shortcode('last_films', 'last_films_shortcode');
