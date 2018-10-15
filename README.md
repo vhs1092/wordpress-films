@@ -1,5 +1,3 @@
-## Codeline Wordpress Test
-### By Victor Samayoa - vhs1092@gmail.com
 
 ##Demo Video
 
